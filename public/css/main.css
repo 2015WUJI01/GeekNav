@@ -108,6 +108,7 @@ nav.navbar a:hover {
     /*height: 56.22px;*/
     height: 70px;
     width: 100%;
+    z-index: -999;
 }
 .a-placeholder.offset {
     /*top: -56.22px;*/
