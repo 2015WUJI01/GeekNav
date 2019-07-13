@@ -15,3 +15,5 @@ yarn-error.log
 composer.lock
 .editorconfig
 .styleci.yml
+
+.user.ini
