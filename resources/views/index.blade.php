@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{{ env("APP_NAME") }}</title>
+    <title>{{ env("APP_NAME") }} | 主页</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -70,7 +70,6 @@
                     data = JSON.parse(data);
                     console.log(data);
                     $("[linkid="+data.id+"]").find(".visited").text(data.visited);
-                    // link.find(".visited").text(data.visited);
                 }
             });
         });

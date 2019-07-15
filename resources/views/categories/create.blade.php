@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', '新增分类')
+
 @section('content')
     @include('layouts.error')
     <form action="{{ route('category.store') }}" method="post">

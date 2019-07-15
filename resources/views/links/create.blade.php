@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', '新增站点')
+
 @section('content')
     @if ($errors->any())
         <div class="alert alert-danger">
