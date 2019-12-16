@@ -20,7 +20,6 @@ Route::resource('link', 'LinkController');
 Route::post('link/{id}/visit', 'LinkController@visitLink');
 Route::resource('category', 'CategoryController');
 
-//Route::get('link', $callback);
 //Route::post('link', $callback);
 //Route::put($uri, $callback);
 //Route::patch($uri, $callback);

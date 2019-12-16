@@ -1,80 +1,160 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ env("APP_NAME") }}</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/main.css') }}">
-    <script src="{{ asset('js/app.js') }}"></script>
-</head>
-<body data-spy="scroll" data-target="#myScrollspy" data-offset="0">
-<div class="container">
-    @include('layouts.nav')
+@extends('layouts._app')
 
-    <div class="row">
-        <nav class="col-md-2 col-12 d-none d-md-block d-lg-block p-4" id="myScrollspy">
-            <ul class="nav nav-pills flex-column">
-                @foreach ($categories as $key => $category)
-                    <li class="nav-item">
-                        <a class="nav-link {{ $key==0?"active":"" }}"
-                           href="#category-{{ $category->id }}">{{ $category->name }}</a>
-                    </li>
-                @endforeach
-            </ul>
-        </nav>
-        <div class="col-md-10 col-12 p-0">
-            <div class="a-placeholder position-relative"></div>
-            @include('layouts.msg')
+@section('title', '首页')
+
+@section('style')
+    <style>
+        .sidebar-menu {
+            width: 220px; /* 侧边栏窄一点 */
+        }
+        .xe-widget.xe-conversations {
+            padding: 10px; /* 覆写链接卡片padding */
+        }
+        .box2 {
+            height: 86px; /* 覆写链接卡片大小 */
+        }
+        p.overflowClip_2 {
+            height: 33px; /* 卡片固定卡片描述高度 */
+        }
+        p.overflowClip_2,
+        p.overflowClip_3 {
+            font-size: 12px; /* 缩小卡片描述及访问字体大小 */
+        }
+    </style>
+@endsection
+@section('content')
+    <div class="page-container">
+        @include('layouts._sidebar', ['categories' => $categories])
+        <div class="main-content">
+            @include('layouts._navbar')
+
             @foreach ($categories as $category)
-                <div class="row category">
-                    <div id="category-{{ $category->id }}" class="a-placeholder position-absolute offset"></div>
-                    <h4 class="col-12 pl-4">{{ $category->name }}</h4>
+                <!-- {{ $category->name }} -->
+                <h4 class="text-gray">
+                    <i class="linecons-tag" style="margin-right: 7px;" id="category-{{ $category->id }}"></i>
+                    {{ $category->name }}
+                </h4>
+                <div class="row">
                     @foreach ($category->links()->orderBy('visited','desc')->get() as $link)
-                        <div class="col-lg-3 col-md-4 col-sm-4 col-6 px-2 py-0 m-0 mb-3">
-                            <a class="item d-block" target="_blank" href="{{ urldecode($link->url) }}"
-                               linkid="{{ $link->id }}">
-                                <div class="logo">
+                        <div class="col-xs-6 col-sm-4 col-md-3">
+                            <div class="xe-widget xe-conversations box2 label-info" linkid="{{ $link->id }}"
+                                 onclick="window.open('{{ urldecode($link->url) }}', '_blank')" data-toggle="tooltip"
+                                 data-placement="top" title="" data-original-title="{{ urldecode($link->url) }}">
+                                <div class="xe-comment-entry">
                                     @if($link->logo)
-                                        <div class="el-image">
-                                            <img src="{{ $link->logo }}" class="el-image__inner">
-                                        </div>
+                                        <a class="xe-user-img">
+                                            <img src="{{ $link->logo }}" class="img-circle" width="40">
+                                        </a>
                                     @endif
-                                    <span>{{ $link->name }}</span>
+                                    <div class="xe-comment">
+                                        <a href="#" class="xe-user-name overflowClip_1">
+                                            <strong>{{ $link->name }}</strong>
+                                        </a>
+                                        <p class="overflowClip_2">{{ $link->description }}</p>
+                                        <p class="overflowClip_3 text-right"><span class="visited">{{ $link->visited }}</span> 访问</p>
+                                    </div>
                                 </div>
-                                <div class="desc">{{ $link->description }}</div>
-                                <div class="text-right text-muted small"><span
-                                        class="visited">{{ $link->visited }}</span> 访问
-                                </div>
-                            </a>
+                            </div>
                         </div>
                     @endforeach
+{{--                    @include('layouts._site_card')--}}
                 </div>
+                <br/>
+                <!-- END {{ $category->name }} -->
             @endforeach
+
+
+            @include('layouts._footer')
         </div>
     </div>
-</div>
-<script>
-    $(function () {
-        $(".item").click(function () {
-            var link = $(this);
-            $.ajax({
-                url: "<?php echo url('/link/'); ?>" + '/' + this.getAttribute("linkid") + '/visit',
-                type: "POST",
-                data: {_token: '<?php echo csrf_token()?>'},
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function (data) {
-                    data = JSON.parse(data);
-                    console.log(data);
-                    $("[linkid="+data.id+"]").find(".visited").text(data.visited);
-                    // link.find(".visited").text(data.visited);
-                }
+@endsection
+
+@section('script')
+    <!-- 点击增加访问次数 -->
+    <script>
+        $(function () {
+            $(".box2").click(function () {
+                var link = $(this);
+                $.ajax({
+                    url: "<?php echo url('/link/'); ?>" + '/' + this.getAttribute("linkid") + '/visit',
+                    type: "POST",
+                    data: {_token: '<?php echo csrf_token()?>'},
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function (data) {
+                        data = JSON.parse(data);
+                        // console.log(data);
+                        $("[linkid="+data.id+"]").find(".visited").text(data.visited);
+                    }
+                });
             });
         });
-    });
-</script>
-</body>
-</html>
+    </script>
+    <script src="{{ asset('/assets/webstack/js/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('/assets/webstack/js/TweenMax.min.js') }}"></script>
+    <script src="{{ asset('/assets/webstack/js/resizeable.js') }}"></script>
+    <script src="{{ asset('/assets/webstack/js/joinable.js') }}"></script>
+    <script src="{{ asset('/assets/webstack/js/xenon-api.js') }}"></script>
+    <script src="{{ asset('/assets/webstack/js/xenon-toggles.js') }}"></script>
+    <script src="{{ asset('/assets/webstack/js/xenon-custom.js') }}"></script>
+    <!-- 锚点平滑移动 -->
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(document).on('click', '.has-sub', function () {
+                var _this = $(this);
+                if (!$(this).hasClass('expanded')) {
+                    setTimeout(function () {
+                        _this.find('ul').attr("style", "")
+                    }, 300);
+
+                } else {
+                    $('.has-sub ul').each(function (id, ele) {
+                        var _that = $(this);
+                        if (_this.find('ul')[0] != ele) {
+                            setTimeout(function () {
+                                _that.attr("style", "")
+                            }, 300);
+                        }
+                    })
+                }
+            });
+            $('.user-info-menu .hidden-sm').click(function () {
+                if ($('.sidebar-menu').hasClass('collapsed')) {
+                    $('.has-sub.expanded > ul').attr("style", "")
+                } else {
+                    $('.has-sub.expanded > ul').show()
+                }
+            });
+            $("#main-menu li ul li").click(function () {
+                $(this).siblings('li').removeClass('active'); // 删除其他兄弟元素的样式
+                $(this).addClass('active'); // 添加当前元素的样式
+            });
+            $("a.smooth").click(function (ev) {
+                ev.preventDefault();
+
+                public_vars.$mainMenu.add(public_vars.$sidebarProfile).toggleClass('mobile-is-visible');
+                ps_destroy();
+                $("html, body").animate({
+                    scrollTop: $($(this).attr("href")).offset().top - 30
+                }, {
+                    duration: 500,
+                    easing: "swing"
+                });
+            });
+            return false;
+        });
+
+        var href = "";
+        var pos = 0;
+        $("a.smooth").click(function (e) {
+            $("#main-menu li").each(function () {
+                $(this).removeClass("active");
+            });
+            $(this).parent("li").addClass("active");
+            e.preventDefault();
+            href = $(this).attr("href");
+            pos = $(href).position().top - 30;
+        });
+    </script>
+@endsection

@@ -11,5 +11,14 @@ const mix = require('laravel-mix');
  |
  */
 
-mix.js('resources/js/app.js', 'public/js')
-    .sass('resources/sass/app.scss', 'public/css');
+// mix
+//     .sass('resources/sass/app.scss', 'public/css')
+//     .js('resources/js/app.js', 'public/js/app.js')
+//     .version();
+
+mix
+    .copy('resources/webstack/assets/css', 'public/assets/webstack/css')
+    .copy('resources/webstack/assets/images', 'public/assets/webstack/images')
+    .copy('resources/webstack/assets/js', 'public/assets/webstack/js');
+
+
